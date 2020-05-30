@@ -37,11 +37,11 @@ def create_mass_movement_gif(data, class_index, gif_filename):
     def create_image_plot(data, step):
         color = ['blue', 'black', 'red', 'purple']
         fig, ax = plt.subplots(figsize=(10,10))
-        _ = sns.jointplot(x="x", y="y", data=data, kind="kde", color=color[class_index], height=10, ax=ax)
-        _ = ax.set(title=f'Step {step}')
+        sns.jointplot(x="x", y="y", data=data, xlim=(0,9), ylim=(0,9), kind="kde", color=color[class_index], height=10, ax=ax)
+        ax.set(title=f'Step {step}')
 
         # Used to return the plot as an image rray
-        _ = fig.canvas.draw()       # draw the canvas, cache the renderer
+        fig.canvas.draw()       # draw the canvas, cache the renderer
         image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
         image  = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
 
@@ -75,7 +75,7 @@ def get_color(x, y, a, b, c, d):
 # plt.show()
 
 
-def create_embedding_gif(embeddings_over_time, gif_filename):
+def create_embedding_gif(embeddings_over_time, gif_filename, title='*10*bs iters'):
     xmin = np.min(embeddings_over_time[:,:,:,0]) - 0.05
     xmax = np.max(embeddings_over_time[:,:,:,0]) + 0.05
     ymin = np.min(embeddings_over_time[:,:,:,1]) - 0.05
@@ -85,14 +85,14 @@ def create_embedding_gif(embeddings_over_time, gif_filename):
         x = lattice_embeddings[:, :, 0].reshape(-1)
         y = lattice_embeddings[:, :, 1].reshape(-1)
         n = [f'({i},{j})' for j in range(10) for i in range(10)]
-        colors = [get_color(i/9, j/9,[355,0,0],[0,0,455],[0,455,0],[455,455,0])/255.0 for j in range(10) for i in range(10)]
+        colors = [get_color(i/9, j/9,[455,0,0],[0,0,455],[0,455,0],[455,455,0])/255.0 for j in range(10) for i in range(10)]
 
         fig, ax = plt.subplots(figsize=(15,15))
         plt.xlim(xmin, xmax)
         plt.ylim(ymin, ymax)
         ax.scatter(x, y, color=colors)
 
-        ax.set(title=f'Epoch {step}')
+        ax.set(title=f'{step} title')
         for i, txt in enumerate(n):
             ax.annotate(txt, (x[i] + 0.01, y[i] + 0.01))
 
