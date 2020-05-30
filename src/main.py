@@ -10,11 +10,11 @@ from torch.nn import CrossEntropyLoss
 from models import LSTM
 from utils import parse_args, save_model
 from dataset import get_train_dataloader, get_test_dataloader
-from training import dispatch_optimizer, warmup, get_lr
+from training import dispatch_optimizer, get_lr
 from metrics import compute_accuracy
 
-best_acc = 0
 save_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'models')
+embeddings = []
 
 if __name__ == '__main__':
     args = parse_args()
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     use_cuda = not args.use_cpu and torch.cuda.is_available()
     device = 'cuda' if use_cuda else 'cpu'
     bs = args.train_batch_size
+    best_acc = 0
 
     train_dataloader = get_train_dataloader(args.data_dir, args.train_batch_size, embedding=args.embedding)
     test_dataloader = get_test_dataloader(args.data_dir, args.train_batch_size, embedding=args.embedding)
@@ -50,11 +51,13 @@ if __name__ == '__main__':
         print(f'epoch {epoch}')
         for x, y in train_dataloader:
             start_time = time.time()
-            if args.test_random_truncate and epoch == 0:
-                if np.random.rand() < 0.33:
+            if args.test_random_truncate:
+                if np.random.rand() < 0.25:
                     x = x[:, :4]
-                elif np.random.rand() < 0.5:
+                elif np.random.rand() < 0.33:
                     x = x[:, :3]
+                # elif np.random.rand() < 0.50:
+                #     x = x[:, :2]
             x, y = x.to(device), y.to(device)
             class_probabilities = model(x)
 
@@ -78,5 +81,14 @@ if __name__ == '__main__':
         test_accuracy = compute_accuracy(model, test_dataloader, device)
         wandb.log({'training accuracy': training_accuracy}, step=iteration*bs)
         wandb.log({'test_accuracy': test_accuracy}, step=iteration*bs)
-        # if test_acc > best_acc:
-        #     save_model(model, f'{save_dir}/{args.run_name}_{test_acc}.pt')
+        if test_accuracy > best_acc:
+            best_acc = test_accuracy
+        print(test_accuracy)
+        save_model(model, f'{save_dir}/{args.run_name}_{epoch}.pt')
+
+        if args.embedding:
+            points = torch.arange(0, 100, dtype=torch.long).cuda()
+            embedding = model.compute_embeddings(points).cpu().detach().numpy()
+            embeddings.append(embedding)
+
+    np.save(f'{save_dir}/{args.run_name}_{args.epochs}_embeddings.npy', embeddings)

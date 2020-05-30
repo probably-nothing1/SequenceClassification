@@ -25,3 +25,6 @@ class LSTM(nn.Module):
         hidden_state = torch.zeros(self.num_layers, bs, self.hidden_size).to('cuda')
         cell_state = torch.zeros(self.num_layers, bs, self.hidden_size).to('cuda')
         return (hidden_state, cell_state)
+
+    def compute_embeddings(self, xs):
+        return self.embedding(xs) if self.embedding else []
