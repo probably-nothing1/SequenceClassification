@@ -35,11 +35,11 @@ def get_train_dataloader(folderpath, batch_size, embedding=False):
         dataset = get_preprocessed_dataset(folderpath, 'train')
     else:
         dataset = get_dataset(folderpath, 'train')
-    return DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=11)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=4)
 
 def get_test_dataloader(folderpath, batch_size, embedding=False):
     if embedding:
         dataset = get_preprocessed_dataset(folderpath, 'test')
     else:
         dataset = get_dataset(folderpath, 'test')
-    return DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=11)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=4)

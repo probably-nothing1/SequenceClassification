@@ -19,6 +19,7 @@ def parse_args(cmd=None):
     parser.add_argument('--weight-decay', type=float, default=0.0001)
 
     # Seq model arch
+    parser.add_argument('--seq-model-type', default='lstm', choices=['lstm', 'gru'])
     parser.add_argument('--hidden-size', type=int, default=16, help='LSTM hidden size')
     parser.add_argument('--num-layers', type=int, default=2, help='LSTM layers')
     parser.add_argument('--embedding', action='store_true')
